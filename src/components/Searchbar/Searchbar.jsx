@@ -9,8 +9,6 @@ import {
 import { ImSearch } from 'react-icons/im';
 import { toast } from 'react-toastify';
 
-import React from 'react';
-
 export const Searchbar = ({ onSubmit }) => {
   const [query, setQuery] = useState('');
 
