@@ -16,55 +16,58 @@ export const ImageGallery = ({ query }) => {
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [page, setPage] = useState(1);
   const isFirstRender = useRef(true);
-  const photosApiService = new PhotosApiService();
-  const getPhotos = async (query, page, message = true) => {
-    try {
-      photosApiService.query = query;
-      photosApiService.page = page;
-      setIsLoadMore(false);
-      const galleryFetch = await photosApiService.fetchPhotos();
-
-      if (galleryFetch.totalHits === 0) {
-        throw new Error(`Ничего не найдено по запросу "${query}"`);
-      }
-      if (message) {
-        toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
-      }
-     
-
-        if (gallery) {
-      
-          setGallery(prevState => {
-            return {
-                totalHits: galleryFetch.totalHits,
-                hits: [...prevState.hits, ...galleryFetch.hits],
-
-            };
-          });
-        } else {
-          setGallery({
-            totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
-          });
-        }
-        console.log(galleryFetch);
-        console.log(gallery);
-      photosApiService.totalPages = Math.ceil(
-        galleryFetch.totalHits / photosApiService.perPage
-      );
-      if (photosApiService.totalPages > 1) {
-        setIsLoadMore(true);
-      }
-      if (photosApiService.page === photosApiService.totalPages) {
-        setIsLoadMore(false);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
+  
 
   useEffect(() => {
+    const photosApiService = new PhotosApiService();
+    const getPhotos = async (query, page, message = true) => {
+      try {
+        photosApiService.query = query;
+        photosApiService.page = page;
+        setIsLoadMore(false);
+        const galleryFetch = await photosApiService.fetchPhotos();
+  
+        if (galleryFetch.totalHits === 0) {
+          throw new Error(`Ничего не найдено по запросу "${query}"`);
+        }
+        if (message) {
+          toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
+        }
+       
+  
+          if (gallery) {
+        
+            setGallery(prevState => {
+              return {
+                  totalHits: galleryFetch.totalHits,
+                  hits: [...prevState.hits, ...galleryFetch.hits],
+  
+              };
+            });
+          } else {
+            setGallery({
+              totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
+            });
+          }
+          console.log(galleryFetch);
+          console.log(gallery);
+          console.log(page)
+        photosApiService.totalPages = Math.ceil(
+          galleryFetch.totalHits / photosApiService.perPage
+        );
+        if (photosApiService.totalPages > 1) {
+          setIsLoadMore(true);
+        }
+        if (photosApiService.page === photosApiService.totalPages) {
+          setIsLoadMore(false);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
@@ -74,7 +77,7 @@ export const ImageGallery = ({ query }) => {
     setGallery(null);
     setPage(1);
     getPhotos(query, 1);
-  }, [query]);
+  }, [gallery, query]);
 
   // useEffect(() => {
   //   getPhotos(query, page, false);
@@ -90,6 +93,7 @@ export const ImageGallery = ({ query }) => {
   };
 
   const loadMore = () => {
+    console.log(page)
     setPage(prevState => {
       return prevState + 1;
     });
