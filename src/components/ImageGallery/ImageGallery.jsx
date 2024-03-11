@@ -77,7 +77,7 @@ export const ImageGallery = ({ query }) => {
     setGallery(null);
     setPage(1);
     getPhotos(query, 1);
-  }, [gallery, query]);
+  }, [query]);
 
   // useEffect(() => {
   //   getPhotos(query, page, false);
