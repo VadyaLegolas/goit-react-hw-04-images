@@ -7,7 +7,7 @@ import { Loader } from 'components/Loader/Loader';
 import { Button } from 'components/Button/Button';
 import { Modal } from 'components/Modal/Modal';
 
-export const ImageGallery = ({query}) => {
+export const ImageGallery = ({ query }) => {
   const [gallery, setGallery] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,66 +16,69 @@ export const ImageGallery = ({query}) => {
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [page, setPage] = useState(1);
   const isFirstRender = useRef(true);
-
-  
-useEffect(() => {
-  if (isFirstRender.current) {
-    isFirstRender.current = false;
-    return
-  }
   const photosApiService = new PhotosApiService();
   const getPhotos = async (query, page, message = true) => {
     try {
-  photosApiService.query = query;
-  photosApiService.page = page;
-  setIsLoadMore(false);
-  const galleryFetch = await photosApiService.fetchPhotos();
-  
-  if (galleryFetch.totalHits === 0) {
-    throw new Error(`Ничего не найдено по запросу "${query}"`);
-  }
-  if (message) {
-    toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
-  }
-  console.log(gallery);
+      photosApiService.query = query;
+      photosApiService.page = page;
+      setIsLoadMore(false);
+      const galleryFetch = await photosApiService.fetchPhotos();
 
-//   if (gallery) {
-//     
-//     setGallery(prevState => {
-//       return {
-//           totalHits: galleryFetch.totalHits,
-//           hits: [...prevState.hits, ...galleryFetch.hits],
-        
-//       };
-//     });
-//   } else {
-//     setGallery({
-//       totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits] 
-//     });
-//   }
-  photosApiService.totalPages = Math.ceil(
-    galleryFetch.totalHits / photosApiService.perPage
-  );
-  if (photosApiService.totalPages > 1) {
-    setIsLoadMore(true);
-  }
-  if (photosApiService.page === photosApiService.totalPages) {
-    setIsLoadMore(false);
-  }
-} catch (err) {
-  setError(err.message);
-} finally {
-  setIsLoading(false);
-}
-};
+      if (galleryFetch.totalHits === 0) {
+        throw new Error(`Ничего не найдено по запросу "${query}"`);
+      }
+      if (message) {
+        toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
+      }
+     
 
-  // setIsLoading(true);
-  // setGallery(null);
-  // setPage(1);
-  getPhotos(query, page);
-}, [ query, page])
+        if (gallery) {
+      
+          setGallery(prevState => {
+            return {
+                totalHits: galleryFetch.totalHits,
+                hits: [...prevState.hits, ...galleryFetch.hits],
 
-  
+            };
+          });
+        } else {
+          setGallery({
+            totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
+          });
+        }
+        console.log(galleryFetch);
+        console.log(gallery);
+      photosApiService.totalPages = Math.ceil(
+        galleryFetch.totalHits / photosApiService.perPage
+      );
+      if (photosApiService.totalPages > 1) {
+        setIsLoadMore(true);
+      }
+      if (photosApiService.page === photosApiService.totalPages) {
+        setIsLoadMore(false);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    setIsLoading(true);
+    setGallery(null);
+    setPage(1);
+    getPhotos(query, 1);
+  }, [query]);
+
+  // useEffect(() => {
+  //   getPhotos(query, page, false);
+  // }, [page]);
 
   const tongleModal = () => {
     setShowModal(prevState => !prevState);
