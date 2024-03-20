@@ -69,10 +69,12 @@ export const ImageGallery = ({ query }) => {
       previousQueryRef.current = query;
       setGallery({});
       setPage(1);
+      getPhotos(query, 1);
       return;
     }
-
-    getPhotos(query, page);
+    if (page !== 1) {
+      getPhotos(query, page);
+    }
   }, [page, query]);
 
   const tongleModal = () => {
