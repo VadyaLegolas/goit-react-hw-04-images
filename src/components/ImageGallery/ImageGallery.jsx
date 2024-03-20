@@ -76,14 +76,17 @@ export const ImageGallery = ({ query }) => {
     if (query === '') {
       return;
     }
+    setIsLoading(true);
+
     if (previousQueryRef.current !== query) {
       previousQueryRef.current = query;
       console.log('previousQueryRef :>> ', previousQueryRef);
       setGallery({});
       setPage(1);
+      getPhotos(query, 1);
+      return;
     }
 
-    setIsLoading(true);
     getPhotos(query, page);
   }, [page, query]);
 
