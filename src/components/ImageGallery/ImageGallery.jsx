@@ -14,7 +14,7 @@ export const ImageGallery = ({ query }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoadMore, setIsLoadMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const previousQueryRef = useRef('');
 
   useEffect(() => {
@@ -32,11 +32,6 @@ export const ImageGallery = ({ query }) => {
         if (page === 1) {
           toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
         }
-
-        console.log('galleryFetch :>> ', galleryFetch);
-
-        // if (gallery) {
-
         setGallery(prevGallery => {
           if (prevGallery.hits) {
             return {
@@ -50,14 +45,6 @@ export const ImageGallery = ({ query }) => {
             };
           }
         });
-        // } else {
-        //   setGallery({
-        //     totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
-        //   });
-        // }
-        // console.log(galleryFetch);
-        // console.log(gallery);
-        // console.log(page)
         photosApiService.totalPages = Math.ceil(
           galleryFetch.totalHits / photosApiService.perPage
         );
@@ -80,17 +67,13 @@ export const ImageGallery = ({ query }) => {
 
     if (previousQueryRef.current !== query) {
       previousQueryRef.current = query;
-      console.log('previousQueryRef :>> ', previousQueryRef);
       setGallery({});
       setPage(1);
-      getPhotos(query, 1);
       return;
     }
 
     getPhotos(query, page);
   }, [page, query]);
-
-  console.log('gallery :>> ', gallery);
 
   const tongleModal = () => {
     setShowModal(prevState => !prevState);
