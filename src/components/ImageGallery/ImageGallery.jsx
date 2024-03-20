@@ -8,16 +8,14 @@ import { Button } from 'components/Button/Button';
 import { Modal } from 'components/Modal/Modal';
 
 export const ImageGallery = ({ query }) => {
-  const [gallery, setGallery] = useState(null);
+  const [gallery, setGallery] = useState({});
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [page, setPage] = useState(1);
-  const isFirstRender = useRef(true);
- 
-  
+  const previousQueryRef = useRef('');
 
   useEffect(() => {
     const photosApiService = new PhotosApiService();
@@ -27,32 +25,39 @@ export const ImageGallery = ({ query }) => {
         photosApiService.page = page;
         setIsLoadMore(false);
         const galleryFetch = await photosApiService.fetchPhotos();
-  
+
         if (galleryFetch.totalHits === 0) {
           throw new Error(`Ничего не найдено по запросу "${query}"`);
         }
-        if (message) {
+        if (page === 1) {
           toast.success(`Найдено ${galleryFetch.totalHits} картинок`);
         }
-       
-  
-          if (gallery) {
-        
-            setGallery(prevState => {
-              return {
-                  totalHits: galleryFetch.totalHits,
-                  hits: [...prevState.hits, ...galleryFetch.hits],
-  
-              };
-            });
+
+        console.log('galleryFetch :>> ', galleryFetch);
+
+        // if (gallery) {
+
+        setGallery(prevGallery => {
+          if (prevGallery.hits) {
+            return {
+              totalHits: galleryFetch.totalHits,
+              hits: [...prevGallery.hits, ...galleryFetch.hits],
+            };
           } else {
-            setGallery({
-              totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
-            });
+            return {
+              totalHits: galleryFetch.totalHits,
+              hits: [...galleryFetch.hits],
+            };
           }
-          console.log(galleryFetch);
-          console.log(gallery);
-          console.log(page)
+        });
+        // } else {
+        //   setGallery({
+        //     totalHits: galleryFetch.totalHits, hits: [...galleryFetch.hits]
+        //   });
+        // }
+        // console.log(galleryFetch);
+        // console.log(gallery);
+        // console.log(page)
         photosApiService.totalPages = Math.ceil(
           galleryFetch.totalHits / photosApiService.perPage
         );
@@ -68,20 +73,21 @@ export const ImageGallery = ({ query }) => {
         setIsLoading(false);
       }
     };
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (query === '') {
       return;
     }
-    
-    setIsLoading(true);
-    setGallery(null);
-    setPage(1);
-    getPhotos(query, 1);
-  }, [gallery, query]);
+    if (previousQueryRef.current !== query) {
+      previousQueryRef.current = query;
+      console.log('previousQueryRef :>> ', previousQueryRef);
+      setGallery({});
+      setPage(1);
+    }
 
-  // useEffect(() => {
-  //   getPhotos(query, page, false);
-  // }, [page]);
+    setIsLoading(true);
+    getPhotos(query, page);
+  }, [page, query]);
+
+  console.log('gallery :>> ', gallery);
 
   const tongleModal = () => {
     setShowModal(prevState => !prevState);
@@ -93,17 +99,14 @@ export const ImageGallery = ({ query }) => {
   };
 
   const loadMore = () => {
-    console.log(page)
-    setPage(prevState => {
-      return prevState + 1;
-    });
+    setPage(prevPage => prevPage + 1);
   };
 
   return (
     <>
       {showModal && <Modal image={selectedImage} onClose={tongleModal} />}
       {error && <h1>{error}</h1>}
-      {gallery && (
+      {Object.keys(gallery).length !== 0 && (
         <Gallery className="gallery">
           {gallery.hits.map(({ id, webformatURL, tags, largeImageURL }) => {
             return (
